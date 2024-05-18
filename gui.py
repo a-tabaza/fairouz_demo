@@ -5,6 +5,7 @@ st.set_page_config(
     page_icon="🎵",
 )
 
+from collections import namedtuple
 import json
 import numpy as np
 from numpy.linalg import norm
@@ -27,8 +28,21 @@ audio_embeddings = np.load("data/audio_np.npy")
 text_embeddings = np.load("data/text_np.npy")
 graph_embeddings = np.load("data/graph_np.npy")
 
+Explanation = namedtuple(
+    "Explanation",
+    [
+        "fairouz_similarity",
+        "image_similarity",
+        "audio_similarity",
+        "text_similarity",
+        "graph_similarity",
+    ],
+)
 
-def explainability(query_track, similar_track):
+
+def explainability(query_track: int, similar_track: int) -> Explanation:
+    """Compute the cosine similarity between the query and similar tracks for each modality."""
+
     query_fairouz_embedding = fairouz_embeddings[int(query_track)]
     similar_fairouz_embedding = fairouz_embeddings[int(similar_track)]
     query_image_embedding = image_embeddings[int(query_track)]
@@ -56,7 +70,7 @@ def explainability(query_track, similar_track):
         norm(query_graph_embedding) * norm(similar_graph_embedding)
     )
 
-    return (
+    return Explanation(
         fairouz_similarity,
         image_similarity,
         audio_similarity,
@@ -146,11 +160,11 @@ with fairouz_tab:
                 st.write(
                     f"Cosine Similarity between {track['track_title']} and {selected_song}:"
                 )
-                st.write(f"Fairouz Similarity: {sim_scores[0]}")
-                st.write(f"Image Similarity: {sim_scores[1]}")
-                st.write(f"Audio Similarity: {sim_scores[2]}")
-                st.write(f"Text Similarity: {sim_scores[3]}")
-                st.write(f"Graph Similarity: {sim_scores[4]}")
+                st.write(f"Fairouz Similarity: {sim_scores.fairouz_similarity}")
+                st.write(f"Image Similarity: {sim_scores.image_similarity}")
+                st.write(f"Audio Similarity: {sim_scores.audio_similarity}")
+                st.write(f"Text Similarity: {sim_scores.text_similarity}")
+                st.write(f"Graph Similarity: {sim_scores.graph_similarity}")
 
 with image_tab:
     key = track_id_to_key[id]
@@ -187,11 +201,11 @@ with image_tab:
                 st.write(
                     f"Cosine Similarity between {track['track_title']} and {selected_song}:"
                 )
-                st.write(f"Fairouz Similarity: {sim_scores[0]}")
-                st.write(f"Image Similarity: {sim_scores[1]}")
-                st.write(f"Audio Similarity: {sim_scores[2]}")
-                st.write(f"Text Similarity: {sim_scores[3]}")
-                st.write(f"Graph Similarity: {sim_scores[4]}")
+                st.write(f"Fairouz Similarity: {sim_scores.fairouz_similarity}")
+                st.write(f"Image Similarity: {sim_scores.image_similarity}")
+                st.write(f"Audio Similarity: {sim_scores.audio_similarity}")
+                st.write(f"Text Similarity: {sim_scores.text_similarity}")
+                st.write(f"Graph Similarity: {sim_scores.graph_similarity}")
 
 with audio_tab:
     key = track_id_to_key[id]
@@ -228,11 +242,11 @@ with audio_tab:
                 st.write(
                     f"Cosine Similarity between {track['track_title']} and {selected_song}:"
                 )
-                st.write(f"Fairouz Similarity: {sim_scores[0]}")
-                st.write(f"Image Similarity: {sim_scores[1]}")
-                st.write(f"Audio Similarity: {sim_scores[2]}")
-                st.write(f"Text Similarity: {sim_scores[3]}")
-                st.write(f"Graph Similarity: {sim_scores[4]}")
+                st.write(f"Fairouz Similarity: {sim_scores.fairouz_similarity}")
+                st.write(f"Image Similarity: {sim_scores.image_similarity}")
+                st.write(f"Audio Similarity: {sim_scores.audio_similarity}")
+                st.write(f"Text Similarity: {sim_scores.text_similarity}")
+                st.write(f"Graph Similarity: {sim_scores.graph_similarity}")
 
 with text_tab:
     key = track_id_to_key[id]
@@ -269,11 +283,11 @@ with text_tab:
                 st.write(
                     f"Cosine Similarity between {track['track_title']} and {selected_song}:"
                 )
-                st.write(f"Fairouz Similarity: {sim_scores[0]}")
-                st.write(f"Image Similarity: {sim_scores[1]}")
-                st.write(f"Audio Similarity: {sim_scores[2]}")
-                st.write(f"Text Similarity: {sim_scores[3]}")
-                st.write(f"Graph Similarity: {sim_scores[4]}")
+                st.write(f"Fairouz Similarity: {sim_scores.fairouz_similarity}")
+                st.write(f"Image Similarity: {sim_scores.image_similarity}")
+                st.write(f"Audio Similarity: {sim_scores.audio_similarity}")
+                st.write(f"Text Similarity: {sim_scores.text_similarity}")
+                st.write(f"Graph Similarity: {sim_scores.graph_similarity}")
 
 with graph_tab:
     key = track_id_to_key[id]
@@ -310,8 +324,8 @@ with graph_tab:
                 st.write(
                     f"Cosine Similarity between {track['track_title']} and {selected_song}:"
                 )
-                st.write(f"Fairouz Similarity: {sim_scores[0]}")
-                st.write(f"Image Similarity: {sim_scores[1]}")
-                st.write(f"Audio Similarity: {sim_scores[2]}")
-                st.write(f"Text Similarity: {sim_scores[3]}")
-                st.write(f"Graph Similarity: {sim_scores[4]}")
+                st.write(f"Fairouz Similarity: {sim_scores.fairouz_similarity}")
+                st.write(f"Image Similarity: {sim_scores.image_similarity}")
+                st.write(f"Audio Similarity: {sim_scores.audio_similarity}")
+                st.write(f"Text Similarity: {sim_scores.text_similarity}")
+                st.write(f"Graph Similarity: {sim_scores.graph_similarity}")

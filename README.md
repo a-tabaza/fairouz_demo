@@ -5,7 +5,14 @@ This repo contains the code for a demo showcasing the model from our paper, `Bin
 The demo is hosted at [https://fairouz.streamlit.app/](https://fairouz.streamlit.app/)
 It is running the same code as in this repo, but hosted online.
 
-# Running Locally (venv)
+# Running Locally
+To run the demo locally, you can either use a virtual environment or docker.
+To run using the virtual environment, you need to have Python installed.
+For ease of access, we provide scripts to run the demo using either method in the `scripts` directory.
+For Linux, you may need to give the scripts execution permissions using `chmod +x <script_name>.sh`.
+For Windows, run the `.bat` files, and for Linux, run the `.sh` files.
+
+## venv
 1. Clone the repo
 ```bash
 git clone https://github.com/a-tabaza/fairouz_demo.git
@@ -22,7 +29,14 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-# Running Locally (Docker)
+4. Run the demo
+```bash
+streamlit run gui.py
+```
+
+Access the demo at [http://localhost:8501/](http://localhost:8501/)
+
+## Docker (Recommended)
 1. Clone the repo
 ```bash
 git clone https://github.com/a-tabaza/fairouz_demo.git
@@ -39,4 +53,4 @@ docker build -t fairouz-demo .
 docker run -d -p 8501:8501 fairouz-demo
 ```
 
-Access the web demo at [http://localhost:8501/](http://localhost:8501/)
+Access the demo at [http://localhost:8501/](http://localhost:8501/)
