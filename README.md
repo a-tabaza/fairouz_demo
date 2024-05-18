@@ -1,8 +1,9 @@
 # Binding Text, Images, Graphs, and Audio for Music Representation Learning
 This repo contains the code for a demo showcasing the model from our paper, `Binding Text, Images, Graphs, and Audio for Music Representation Learning`.
 
-# Web Demo
-The web demo is hosted at [https://fairouz-demo.herokuapp.com/](https://fairouz-demo.herokuapp.com/)
+# Try Online
+The demo is hosted at [https://fairouz.streamlit.app/](https://fairouz.streamlit.app/)
+It is running the same code as in this repo, but hosted online.
 
 # Running Locally (venv)
 1. Clone the repo
