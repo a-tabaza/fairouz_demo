@@ -11,6 +11,8 @@ import numpy as np
 from numpy.linalg import norm
 from usearch.index import Index
 
+from nomic_maps import md_string
+
 key_to_track_id = json.load(open("data/id_to_track_mapping.json"))
 track_id_to_key = {v: k for k, v in key_to_track_id.items()}
 
@@ -80,6 +82,14 @@ def explainability(query_track: int, similar_track: int) -> Explanation:
 
 
 st.title("Binding Text, Images, Graphs, and Audio for Music Representation Learning")
+st.header("Explore Music Similarity Across Multiple Modalities")
+st.subheader("Select an artist and song to get started")
+st.write(
+    "If you want to inspect the vector spaces that the model operates on, feel free to click the vector space button below."
+)
+
+if st.button("View Vector Spaces"):
+    st.markdown(md_string, unsafe_allow_html=True)
 
 artists = list(set([item["artist_name"] for item in tracks.values()]))
 selected_artist = st.selectbox("Select Artist", artists)
