@@ -1,3 +1,7 @@
 numpy
 usearch
 streamlit
+networkx
+streamlit-d3graph
+scipy
+scikit-learn

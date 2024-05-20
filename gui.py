@@ -1,4 +1,9 @@
 import streamlit as st
+from graph_function import tracks_to_networkx
+import networkx as nx
+from streamlit_d3graph import d3graph
+import random
+import pandas as pd
 
 st.set_page_config(
     page_title="Binding Text, Images, Graphs, and Audio for Music Representation Learning",
@@ -107,6 +112,84 @@ id_and_track = [
 ]
 id = id_and_track[0][0]
 track = id_and_track[0][1]
+
+tracks_dict = json.load(open('tracks_contextualized.json', 'r'))
+
+d3 = d3graph()
+dg = nx.DiGraph()
+tracks_to_networkx(tracks_dict, dg)
+
+node_types_colors = {
+    "track": "#F26419",
+    "artist":"#F6AE2D",
+    "album": "#86BBD8",
+    "genre": "#E2EBF3",
+}
+
+chosen_nodes = set()
+chosen_edges = set()
+
+edge_properties = {}
+node_properties = {}
+
+with st.expander(f"Show Sub Graph"):
+    
+    base_graph = nx.DiGraph()
+    other_songs = set()
+
+    for node in nx.ego_graph(dg, id).nodes.data():
+        if node[1]['type'] == 'genre':
+            poss_songs = random.sample(list(dg.in_edges(node[0])), len(list(dg.in_edges(node[0]))) if len(list(dg.in_edges(node[0]))) < 2 else 2)
+            for poss_song in poss_songs:
+                other_songs.add(poss_song[0])
+
+        if node[1]['type'] == 'artist':
+            poss_songs = random.sample(list(dg.in_edges(node[0])), len(list(dg.in_edges(node[0]))) if len(list(dg.in_edges(node[0]))) < 2 else 2)
+            for poss_song in poss_songs:
+                other_songs.add(poss_song[0])
+
+    base_graph = nx.ego_graph(dg, id)
+
+    for pos in other_songs:
+        base_graph = nx.compose(base_graph, nx.ego_graph(dg, pos))
+        
+    for i in base_graph.nodes():
+        node_properties.update({i: 
+            {'name': i,
+            'marker': 'circle', 
+            'label': dg.nodes[i]['name'] if 'name' in dg.nodes[i] else dg.nodes[i]['title'], 
+            'tooltip': i, 
+            'color': node_types_colors[dg.nodes[i]['type']], 
+            'opacity': '0.99', 
+            'fontcolor': '#F0F0F0', 
+            'fontsize': 12, 
+            'size': 13.0, 
+            'edge_size': 1, 
+            'edge_color': '#000000',
+            'group': 1}}
+            )
+
+    for i in base_graph.edges():
+        edge_properties.update({(i[0], i[1]):
+                    {'weight': 1.0,
+                    'weight_scaled': 1.0,
+                    'edge_distance': 50.0, 
+                    'edge_style': 0, 
+                    'color': '#808080', 
+                    'marker_start': '', 
+                    'marker_end': 'arrow', 
+                    'marker_color': '#808080', 
+                    'label': '', 
+                    'label_color': '#808080', 
+                    'label_fontsize': 8}})
+
+    d3.graph(pd.DataFrame(nx.adjacency_matrix(base_graph).toarray(), columns = base_graph.nodes(), index = base_graph.nodes()))
+    d3.node_properties = node_properties
+    d3.edge_properties = edge_properties
+
+    d3.show(figsize=(600, 500))
+
+
 
 
 with st.expander(f"Lyrics"):
