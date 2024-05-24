@@ -9,7 +9,9 @@ from collections import namedtuple
 import json
 import numpy as np
 from numpy.linalg import norm
-from usearch.index import Index
+
+# from usearch.index import Index
+import faiss
 
 from nomic_maps import md_string
 
@@ -18,11 +20,18 @@ track_id_to_key = {v: k for k, v in key_to_track_id.items()}
 
 tracks = json.load(open("data/tracks.json"))
 
-fairouz_index = Index.restore("data/fairouz_index.usearch")
-image_index = Index.restore("data/image_index.usearch")
-audio_index = Index.restore("data/audio_index.usearch")
-text_index = Index.restore("data/text_index.usearch")
-graph_index = Index.restore("data/graph_index.usearch")
+# fairouz_index = Index.restore("data/fairouz_index.usearch")
+# image_index = Index.restore("data/image_index.usearch")
+# audio_index = Index.restore("data/audio_index.usearch")
+# text_index = Index.restore("data/text_index.usearch")
+# graph_index = Index.restore("data/graph_index.usearch")
+
+fairouz_index = faiss.read_index("data/fairouz_index.faiss")
+image_index = faiss.read_index("data/image_index.faiss")
+audio_index = faiss.read_index("data/audio_index.faiss")
+text_index = faiss.read_index("data/text_index.faiss")
+graph_index = faiss.read_index("data/graph_index.faiss")
+
 
 fairouz_embeddings = np.load("data/fairouz_np.npy")
 image_embeddings = np.load("data/image_np.npy")
@@ -59,6 +68,7 @@ def explainability(query_track: int, similar_track: int) -> Explanation:
     fairouz_similarity = np.dot(query_fairouz_embedding, similar_fairouz_embedding) / (
         norm(query_fairouz_embedding) * norm(similar_fairouz_embedding)
     )
+
     image_similarity = np.dot(query_image_embedding, similar_image_embedding) / (
         norm(query_image_embedding) * norm(similar_image_embedding)
     )
@@ -139,9 +149,10 @@ with fairouz_tab:
     key = track_id_to_key[id]
     query_key = track_id_to_key[id]
     fairouz_embedding = fairouz_embeddings[int(key)]
-    top_fairouz = fairouz_index.search(fairouz_embedding, 5)
+    print(fairouz_embedding.shape)
+    f_D, f_I = fairouz_index.search(fairouz_embedding.reshape(1, -1), 5)
     st.write("Similar Tracks based on Fairouz Embeddings")
-    for i, (key, score) in enumerate(top_fairouz.to_list()):
+    for i, (key, score) in enumerate(zip(f_I[0], f_D[0])):
         if int(key) != int(track_id_to_key[id]):
             track_id = key_to_track_id[str(key)]
             track = tracks[track_id]
@@ -179,10 +190,10 @@ with fairouz_tab:
 with image_tab:
     key = track_id_to_key[id]
     image_embedding = image_embeddings[int(key)]
-    top_image = image_index.search(image_embedding, 5)
+    i_D, i_I = image_index.search(image_embedding.reshape(1, -1), 5)
     query_key = track_id_to_key[id]
     st.write("Similar Tracks based on Image Embeddings")
-    for i, (key, score) in enumerate(top_image.to_list()):
+    for i, (key, score) in enumerate(zip(i_I[0], i_D[0])):
         if int(key) != int(track_id_to_key[id]):
             track_id = key_to_track_id[str(key)]
             track = tracks[track_id]
@@ -220,10 +231,10 @@ with image_tab:
 with audio_tab:
     key = track_id_to_key[id]
     audio_embedding = audio_embeddings[int(key)]
-    top_audio = audio_index.search(audio_embedding, 5)
+    a_D, a_I = audio_index.search(audio_embedding.reshape(1, -1), 5)
     query_key = track_id_to_key[id]
     st.write("Similar Tracks based on Audio Embeddings")
-    for i, (key, score) in enumerate(top_audio.to_list()):
+    for i, (key, score) in enumerate(zip(a_I[0], a_D[0])):
         if int(key) != int(track_id_to_key[id]):
             track_id = key_to_track_id[str(key)]
             track = tracks[track_id]
@@ -261,10 +272,10 @@ with audio_tab:
 with text_tab:
     key = track_id_to_key[id]
     text_embedding = text_embeddings[int(key)]
-    top_text = text_index.search(text_embedding, 5)
+    t_D, t_I = text_index.search(text_embedding.reshape(1, -1), 5)
     query_key = track_id_to_key[id]
     st.write("Similar Tracks based on Text Embeddings")
-    for i, (key, score) in enumerate(top_text.to_list()):
+    for i, (key, score) in enumerate(zip(t_I[0], t_D[0])):
         if int(key) != int(track_id_to_key[id]):
             track_id = key_to_track_id[str(key)]
             track = tracks[track_id]
@@ -302,10 +313,10 @@ with text_tab:
 with graph_tab:
     key = track_id_to_key[id]
     graph_embedding = graph_embeddings[int(key)]
-    top_graph = graph_index.search(graph_embedding, 5)
+    g_D, g_I = graph_index.search(graph_embedding.reshape(1, -1), 5)
     query_key = track_id_to_key[id]
     st.write("Similar Tracks based on Graph Embeddings")
-    for i, (key, score) in enumerate(top_graph.to_list()):
+    for i, (key, score) in enumerate(zip(g_I[0], g_D[0])):
         if int(key) != int(track_id_to_key[id]):
             track_id = key_to_track_id[str(key)]
             track = tracks[track_id]
