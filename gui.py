@@ -37,7 +37,6 @@ audio_index = faiss.read_index("data/audio_index.faiss")
 text_index = faiss.read_index("data/text_index.faiss")
 graph_index = faiss.read_index("data/graph_index.faiss")
 
-
 fairouz_embeddings = np.load("data/fairouz_np.npy")
 image_embeddings = np.load("data/image_np.npy")
 audio_embeddings = np.load("data/audio_np.npy")
@@ -57,6 +56,7 @@ Explanation = namedtuple(
 
 idify = lambda my_string: str(hashlib.md5(my_string.encode()).hexdigest())
 
+
 def load_to_graph(tracks, graph):
     track_set = set()
     artist_set = set()
@@ -67,45 +67,47 @@ def load_to_graph(tracks, graph):
 
         track = tracks[track_id]
 
-        track_title = track['track_title']
-        artist_name = track['artist_name']
-        album_name = track['album_name']
-        album_image = track['image']
+        track_title = track["track_title"]
+        artist_name = track["artist_name"]
+        album_name = track["album_name"]
+        album_image = track["image"]
 
         if track_id not in track_set:
-            graph.add_node(track_id, title=track_title, type='track')
+            graph.add_node(track_id, title=track_title, type="track")
 
-        artist_id = 'id' + idify('artist' +track['artist_name'])
-        album_id = 'id' + idify('album' +track['album_name'])
-        genres_id  = {}
+        artist_id = "id" + idify("artist" + track["artist_name"])
+        album_id = "id" + idify("album" + track["album_name"])
+        genres_id = {}
 
-        for genre in track['genres']:
+        for genre in track["genres"]:
             if isinstance(genre, str):
-                genre_id = 'id' + idify('genre' + genre)
+                genre_id = "id" + idify("genre" + genre)
                 genres_id[genre_id] = genre
             else:
-                genre_id = 'id' + idify('genre' + genre.name)
+                genre_id = "id" + idify("genre" + genre.name)
                 genres_id[genre_id] = genre.name
 
         if artist_id not in artist_set:
-            graph.add_node(artist_id, name=artist_name, type='artist')
+            graph.add_node(artist_id, name=artist_name, type="artist")
 
-        if album_id not in album_set and album_name != '':
-            graph.add_node(album_id, title=album_name, hasImage=album_image, type='album')
-            graph.add_edge(album_id, artist_id, type='BY_ARTIST')
+        if album_id not in album_set and album_name != "":
+            graph.add_node(
+                album_id, title=album_name, hasImage=album_image, type="album"
+            )
+            graph.add_edge(album_id, artist_id, type="BY_ARTIST")
 
         for genre_id in genres_id:
             if genre_id not in genre_set:
                 genre_name = genres_id[genre_id]
-                graph.add_node(genre_id, name=genre_name, type='genre')
+                graph.add_node(genre_id, name=genre_name, type="genre")
                 genre_set.add(genre_id)
 
         if track_id not in track_set:
             for genre_id in genres_id:
-                graph.add_edge(track_id, genre_id, type='HAS_GENRE')
-            graph.add_edge(track_id, artist_id, type='BY_ARTIST')
-            if album_name != '':
-                graph.add_edge(track_id, album_id, type='PART_OF_ALBUM')
+                graph.add_edge(track_id, genre_id, type="HAS_GENRE")
+            graph.add_edge(track_id, artist_id, type="BY_ARTIST")
+            if album_name != "":
+                graph.add_edge(track_id, album_id, type="PART_OF_ALBUM")
 
         track_set.add(track_id)
         artist_set.add(artist_id)
@@ -113,17 +115,19 @@ def load_to_graph(tracks, graph):
 
 
 full_graph = nx.DiGraph()
-load_to_graph(tracks, full_graph) 
+load_to_graph(tracks, full_graph)
+
+
 # The reason behind this is that you CANNOT return a graph,
 #  nx didn't implement it i dont think. So I have to create a global graph,
 #  then populate it inside the function.
-
+# okay bro it's not that deep
 def create_d3_graph(graph, id):
     d3 = d3graph()
 
     node_types_colors = {
         "track": "#F26419",
-        "artist":"#F6AE2D",
+        "artist": "#F6AE2D",
         "album": "#86BBD8",
         "genre": "#E2EBF3",
     }
@@ -137,13 +141,27 @@ def create_d3_graph(graph, id):
     other_songs = set()
 
     for node in nx.ego_graph(graph, id).nodes.data():
-        if node[1]['type'] == 'genre':
-            poss_songs = random.sample(list(graph.in_edges(node[0])), len(list(graph.in_edges(node[0]))) if len(list(graph.in_edges(node[0]))) < 2 else 2)
+        if node[1]["type"] == "genre":
+            poss_songs = random.sample(
+                list(graph.in_edges(node[0])),
+                (
+                    len(list(graph.in_edges(node[0])))
+                    if len(list(graph.in_edges(node[0]))) < 2
+                    else 2
+                ),
+            )
             for poss_song in poss_songs:
                 other_songs.add(poss_song[0])
 
-        if node[1]['type'] == 'artist':
-            poss_songs = random.sample(list(graph.in_edges(node[0])), len(list(graph.in_edges(node[0]))) if len(list(graph.in_edges(node[0]))) < 2 else 2)
+        if node[1]["type"] == "artist":
+            poss_songs = random.sample(
+                list(graph.in_edges(node[0])),
+                (
+                    len(list(graph.in_edges(node[0])))
+                    if len(list(graph.in_edges(node[0]))) < 2
+                    else 2
+                ),
+            )
             for poss_song in poss_songs:
                 other_songs.add(poss_song[0])
 
@@ -151,42 +169,60 @@ def create_d3_graph(graph, id):
 
     for pos in other_songs:
         base_graph = nx.compose(base_graph, nx.ego_graph(graph, pos))
-        
+
     for i in base_graph.nodes():
-        node_properties.update({i: 
-            {'name': i,
-            'marker': 'circle', 
-            'label': graph.nodes[i]['name'] if 'name' in graph.nodes[i] else graph.nodes[i]['title'], 
-            'tooltip': i, 
-            'color': node_types_colors[graph.nodes[i]['type']], 
-            'opacity': '0.99', 
-            'fontcolor': '#F0F0F0', 
-            'fontsize': 12, 
-            'size': 13.0, 
-            'edge_size': 1, 
-            'edge_color': '#000000',
-            'group': 1}}
-            )
+        node_properties.update(
+            {
+                i: {
+                    "name": i,
+                    "marker": "circle",
+                    "label": (
+                        graph.nodes[i]["name"]
+                        if "name" in graph.nodes[i]
+                        else graph.nodes[i]["title"]
+                    ),
+                    "tooltip": i,
+                    "color": node_types_colors[graph.nodes[i]["type"]],
+                    "opacity": "0.99",
+                    "fontcolor": "#F0F0F0",
+                    "fontsize": 12,
+                    "size": 13.0,
+                    "edge_size": 1,
+                    "edge_color": "#000000",
+                    "group": 1,
+                }
+            }
+        )
 
     for i in base_graph.edges():
-        edge_properties.update({(i[0], i[1]):
-                    {'weight': 1.0,
-                    'weight_scaled': 1.0,
-                    'edge_distance': 50.0, 
-                    'edge_style': 0, 
-                    'color': '#808080', 
-                    'marker_start': '', 
-                    'marker_end': 'arrow', 
-                    'marker_color': '#808080', 
-                    'label': '', 
-                    'label_color': '#808080', 
-                    'label_fontsize': 8}})
+        edge_properties.update(
+            {
+                (i[0], i[1]): {
+                    "weight": 1.0,
+                    "weight_scaled": 1.0,
+                    "edge_distance": 50.0,
+                    "edge_style": 0,
+                    "color": "#808080",
+                    "marker_start": "",
+                    "marker_end": "arrow",
+                    "marker_color": "#808080",
+                    "label": "",
+                    "label_color": "#808080",
+                    "label_fontsize": 8,
+                }
+            }
+        )
 
-    d3.graph(pd.DataFrame(nx.adjacency_matrix(base_graph).toarray(), columns = base_graph.nodes(), index = base_graph.nodes()))
+    d3.graph(
+        pd.DataFrame(
+            nx.adjacency_matrix(base_graph).toarray(),
+            columns=base_graph.nodes(),
+            index=base_graph.nodes(),
+        )
+    )
     d3.node_properties = node_properties
     d3.edge_properties = edge_properties
     return d3
-
 
 
 def explainability(query_track: int, similar_track: int) -> Explanation:
@@ -236,8 +272,16 @@ st.write(
     "If you want to inspect the vector spaces that the model operates on, feel free to click the vector space button below."
 )
 
-if st.button("View Vector Spaces"):
+with st.expander("Vector Spaces"):
     st.markdown(md_string, unsafe_allow_html=True)
+
+with st.expander("Abstract"):
+    st.markdown(
+        """
+        In the field of Information Retrieval and Natural Language Processing, text embeddings play a significant role in tasks such as classification, clustering, and topic modeling. However, extending these embeddings to abstract concepts such as music, which involves multiple modalities, presents a unique challenge. Our work addresses this challenge by integrating rich multi-modal data into a unified joint embedding space. This space includes textual, visual, acoustic, and graph-based modality features. By doing so, we mirror cognitive processes associated with music interaction and overcome the disjoint nature of individual modalities. The resulting joint low-dimensional vector space facilitates retrieval, clustering, embedding space arithmetic, and cross-modal retrieval tasks. Importantly, our approach carries implications for music information retrieval and recommendation systems. Furthermore, we propose a novel multi-modal model that integrates various data types—text, images, graphs, and audio—for music representation learning. Our model aims to capture the complex relationships between different modalities, enhancing the overall understanding of music. By combining textual descriptions, visual imagery, graph-based structures, and audio signals, we create a comprehensive representation that can be leveraged for a wide range of music-related tasks. Notably, our model demonstrates promising results in music classification and recommendation systems.
+        """
+    )
+
 
 artists = list(set([item["artist_name"] for item in tracks.values()]))
 selected_artist = st.selectbox("Select Artist", artists)
@@ -255,10 +299,6 @@ id_and_track = [
 ]
 id = id_and_track[0][0]
 track = id_and_track[0][1]
-
-with st.expander(f"Show Sub Graph"):
-    if st.button("Show Sub Graph"):
-        create_d3_graph(full_graph, id).show(figsize=(600, 500), show_slider=False, save_button=False)
 
 with st.expander(f"Lyrics"):
     lyrics = track["lyrics"]["lyrics"]
@@ -279,6 +319,12 @@ with st.expander("Album"):
     st.write(f"{track['album_name']}")
     st.image(track["image"], caption="Album Art")
 
+with st.expander(f"Graph"):
+    if st.button("Show Sub Graph"):
+        create_d3_graph(full_graph, id).show(
+            figsize=(600, 500), show_slider=False, save_button=False
+        )
+
 with st.expander("Audio"):
     st.audio(track["preview_url"])
 
@@ -290,7 +336,6 @@ with fairouz_tab:
     key = track_id_to_key[id]
     query_key = track_id_to_key[id]
     fairouz_embedding = fairouz_embeddings[int(key)]
-    print(fairouz_embedding.shape)
     f_D, f_I = fairouz_index.search(fairouz_embedding.reshape(1, -1), 5)
     st.write("Similar Tracks based on Fairouz Embeddings")
     for i, (key, score) in enumerate(zip(f_I[0], f_D[0])):
@@ -298,10 +343,6 @@ with fairouz_tab:
             track_id = key_to_track_id[str(key)]
             track = tracks[track_id]
             st.write(f"{track['track_title']} by {track['artist_name']}")
-            with st.expander('Show Graph'):
-                if st.button('Show Subgraph', key = key + 104):
-                    d3_temp = create_d3_graph(full_graph, key_to_track_id[str(key)])
-                    d3_temp.show(figsize=(600, 500), show_slider=False, save_button=False)
             with st.expander(f"Lyrics"):
                 lyrics = track["lyrics"]["lyrics"]
                 if lyrics != "":
@@ -319,6 +360,12 @@ with fairouz_tab:
             with st.expander("Album"):
                 st.write(f"{track['album_name']}")
                 st.image(track["image"], caption="Album Art")
+            with st.expander("Graph"):
+                if st.button("Show Subgraph", key=key + 104):
+                    d3_temp = create_d3_graph(full_graph, key_to_track_id[str(key)])
+                    d3_temp.show(
+                        figsize=(600, 500), show_slider=False, save_button=False
+                    )
             with st.expander("Audio"):
                 st.audio(track["preview_url"])
             with st.expander("Explainability"):
@@ -343,9 +390,6 @@ with image_tab:
             track_id = key_to_track_id[str(key)]
             track = tracks[track_id]
             st.write(f"{track['track_title']} by {track['artist_name']}")
-            with st.expander('Show Graph'):
-                if st.button('Show Subgraph', key = key + 130):
-                    create_d3_graph(full_graph, key_to_track_id[str(key)]).show(figsize=(600, 500), show_slider=False, save_button=False)
             with st.expander(f"Lyrics"):
                 lyrics = track["lyrics"]["lyrics"]
                 if lyrics != "":
@@ -363,6 +407,11 @@ with image_tab:
             with st.expander("Album"):
                 st.write(f"{track['album_name']}")
                 st.image(track["image"], caption="Album Art")
+            with st.expander("Graph"):
+                if st.button("Show Subgraph", key=key + 130):
+                    create_d3_graph(full_graph, key_to_track_id[str(key)]).show(
+                        figsize=(600, 500), show_slider=False, save_button=False
+                    )
             with st.expander("Audio"):
                 st.audio(track["preview_url"])
             with st.expander("Explainability"):
@@ -387,9 +436,6 @@ with audio_tab:
             track_id = key_to_track_id[str(key)]
             track = tracks[track_id]
             st.write(f"{track['track_title']} by {track['artist_name']}")
-            with st.expander('Show Graph'):
-                if st.button('Show Subgraph', key = key + 156):
-                    create_d3_graph(full_graph, key_to_track_id[str(key)]).show(figsize=(600, 500), show_slider=False, save_button=False)
             with st.expander(f"Lyrics"):
                 lyrics = track["lyrics"]["lyrics"]
                 if lyrics != "":
@@ -407,6 +453,11 @@ with audio_tab:
             with st.expander("Album"):
                 st.write(f"{track['album_name']}")
                 st.image(track["image"], caption="Album Art")
+            with st.expander("Graph"):
+                if st.button("Show Subgraph", key=key + 156):
+                    create_d3_graph(full_graph, key_to_track_id[str(key)]).show(
+                        figsize=(600, 500), show_slider=False, save_button=False
+                    )
             with st.expander("Audio"):
                 st.audio(track["preview_url"])
             with st.expander("Explainability"):
@@ -431,9 +482,6 @@ with text_tab:
             track_id = key_to_track_id[str(key)]
             track = tracks[track_id]
             st.write(f"{track['track_title']} by {track['artist_name']}")
-            with st.expander('Show Graph'): 
-                if st.button('Show Subgraph', key = key + 185):
-                    create_d3_graph(full_graph, key_to_track_id[str(key)]).show(figsize=(600, 500), show_slider=False, save_button=False)
             with st.expander(f"Lyrics"):
                 lyrics = track["lyrics"]["lyrics"]
                 if lyrics != "":
@@ -451,6 +499,11 @@ with text_tab:
             with st.expander("Album"):
                 st.write(f"{track['album_name']}")
                 st.image(track["image"], caption="Album Art")
+            with st.expander("Graph"):
+                if st.button("Show Subgraph", key=key + 185):
+                    create_d3_graph(full_graph, key_to_track_id[str(key)]).show(
+                        figsize=(600, 500), show_slider=False, save_button=False
+                    )
             with st.expander("Audio"):
                 st.audio(track["preview_url"])
             with st.expander("Explainability"):
@@ -475,10 +528,6 @@ with graph_tab:
             track_id = key_to_track_id[str(key)]
             track = tracks[track_id]
             st.write(f"{track['track_title']} by {track['artist_name']}")
-            with st.expander('Show Graph'):
-                if st.button('Show Subgraph', key = key + 208):
-                    create_d3_graph(full_graph, key_to_track_id[str(key)]).show(figsize=(600, 500), show_slider=False, save_button=False)
-
             with st.expander(f"Lyrics"):
                 lyrics = track["lyrics"]["lyrics"]
                 if lyrics != "":
@@ -496,6 +545,11 @@ with graph_tab:
             with st.expander("Album"):
                 st.write(f"{track['album_name']}")
                 st.image(track["image"], caption="Album Art")
+            with st.expander("Graph"):
+                if st.button("Show Subgraph", key=key + 2085):
+                    create_d3_graph(full_graph, key_to_track_id[str(key)]).show(
+                        figsize=(600, 500), show_slider=False, save_button=False
+                    )
             with st.expander("Audio"):
                 st.audio(track["preview_url"])
             with st.expander("Explainability"):
