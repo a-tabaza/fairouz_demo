@@ -2,3 +2,7 @@ numpy
 usearch
 streamlit
 faiss-cpu
+networkx
+streamlit-d3graph
+scipy
+scikit-learn
