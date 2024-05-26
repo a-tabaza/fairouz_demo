@@ -581,51 +581,51 @@ with graph_tab:
                 st.write(f"Text Similarity: {sim_scores.text_similarity}")
                 st.write(f"Graph Similarity: {sim_scores.graph_similarity}")
 
-# track_names = {track["track_title"]: id for id, track in tracks.items()}
+track_names = {track["track_title"]: id for id, track in tracks.items()}
 
-# st.title("Smart Shuffle")
+st.title("Smart Shuffle")
 
-# st.write(
-#     "You: can I have spotify smart shuffle?\n\nMom: we have spotify smart shuffle at home\n\nSpotify smart shuffle at home:"
-# )
+st.image("meme.jpg", caption="Smart Shuffle Meme")
 
-# st.write("Select a song to start the Smart Shuffle!")
-# selected_track = st.multiselect("Select songs", list(track_names.keys()))
+st.write("Select a song to start the Smart Shuffle!")
+selected_track = st.multiselect("Select songs", sorted(list(track_names.keys())))
 
-# smart_shuffle_tracks = []
-# if st.button("Smart Shuffle"):
-#     for s_track in selected_track:
-#         s_id = track_names[s_track]
-#         s_key = track_id_to_key[s_id]
-#         s_fairouz_embedding = fairouz_embeddings[int(s_key)]
-#         sf_D, sf_I = fairouz_index.search(s_fairouz_embedding.reshape(1, -1), 3)
-#         for i, (key, score) in enumerate(zip(f_I[0], f_D[0])):
-#             if int(key) != int(track_id_to_key[s_id]):
-#                 ss_id = key_to_track_id[str(key)]
-#                 ss_track = tracks[ss_id]
-#                 smart_shuffle_tracks.append(ss_track)
+smart_shuffle_tracks = []
+if st.button("Smart Shuffle"):
+    for s_track in selected_track:
+        s_id = track_names[s_track]
+        s_key = track_id_to_key[s_id]
+        s_fairouz_embedding = fairouz_embeddings[int(s_key)]
+        sf_D, sf_I = fairouz_index.search(s_fairouz_embedding.reshape(1, -1), 3)
+        for i, (key, score) in enumerate(zip(sf_I[0], sf_D[0])):
+            if int(key) != int(track_id_to_key[s_id]):
+                ss_id = key_to_track_id[str(key)]
+                ss_track = tracks[ss_id]
+                smart_shuffle_tracks.append(ss_track)
 
-#     st.write("### Smart Shuffle Results:")
-#     for track in smart_shuffle_tracks:
-#         st.write(track["track_title"], track["artist_name"], track["album_name"])
-#         with st.expander(f"Lyrics"):
-#             lyrics = track["lyrics"]["lyrics"]
-#             if lyrics != "":
-#                 emotional_tone = ", ".join(track["lyrics"]["emotional"])
-#                 keywords = ", ".join(track["lyrics"]["context"])
-#                 summary = track["lyrics"]["summary"]
-#                 st.write(f"Emotional Tone: {emotional_tone}")
-#                 st.write(f"Keywords: {keywords}")
-#                 st.write(f"Summary: {summary}")
-#                 if st.button("View Lyrics", key=i + 5252 + np.random.randint(1000)):
-#                     st.write(lyrics)
-#             else:
-#                 st.write("No lyrics available for this song.")
+st.write("### Smart Shuffle Results:")
+for sss_track in smart_shuffle_tracks:
+    st.write(
+        f"{sss_track['track_title']} - {sss_track['artist_name']} - {sss_track['album_name']}"
+    )
+    with st.expander(f"Lyrics"):
+        lyrics = sss_track["lyrics"]["lyrics"]
+        if lyrics != "":
+            emotional_tone = ", ".join(sss_track["lyrics"]["emotional"])
+            keywords = ", ".join(sss_track["lyrics"]["context"])
+            summary = sss_track["lyrics"]["summary"]
+            st.write(f"Emotional Tone: {emotional_tone}")
+            st.write(f"Keywords: {keywords}")
+            st.write(f"Summary: {summary}")
+            if st.button("View Lyrics", key=i + 5252 + np.random.randint(1000)):
+                st.write(lyrics)
+        else:
+            st.write("No lyrics available for this song.")
 
-#         with st.expander(f"Album Art"):
-#             st.image(track["image"])
+    with st.expander(f"Album Art"):
+        st.image(sss_track["image"])
 
-#         with st.expander(f"Audio"):
-#             st.audio(track["preview_url"], format="audio/mp3")
+    with st.expander(f"Audio"):
+        st.audio(sss_track["preview_url"], format="audio/mp3")
 
-#         st.write("----")
+    st.write("----")
