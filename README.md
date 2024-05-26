@@ -5,7 +5,7 @@ For a detailed explanation of the model, please refer to the paper \[will link o
 
 # Functionality
 As soon as we trained our model, we embedded all the songs we had, resulting in an embedding per song, based on those embeddings, we added the following functionality:
-- **Search**: Given a query, the model retrieves the most similar songs to the query.
+- **Search**: Given a query song, the model retrieves the most similar songs to the query.
 - **Recommendation**: Given a song, the model retrieves the most similar songs to the input song.
 - **Explainablity:**: Given a song, the model retrieves the most similar songs to the input song and explains why they are similar, based on each individual modality, and vector similarity.
 - **Interactivity**: We added a component to interact with the knowledge graph, where you can explore the graph and see the songs that are connected to the selected song. We also link the `Nomic by Atlas` maps that we produced, these are by far the most interactive component of the demo, where you can explore the songs in a 2D space, and see the connections between them.
