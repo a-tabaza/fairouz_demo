@@ -17,6 +17,7 @@ In the field of Information Retrieval and Natural Language Processing, text embe
 
 # Try Online
 The demo is hosted at [https://fairouz.streamlit.app/](https://fairouz.streamlit.app/)
+
 It is running the same code as in this repo, but hosted online.
 
 # Running Locally
