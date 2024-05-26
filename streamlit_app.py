@@ -371,7 +371,7 @@ with fairouz_tab:
                     st.write(f"Keywords: {keywords}")
                     st.write(f"Summary: {summary}")
 
-                    if st.button("View Lyrics", key=i + 52):
+                    if st.button("View Lyrics", key=i + 52 + np.random.randint(1000)):
                         st.write(lyrics)
                 else:
                     st.write("No Lyrics Available")
@@ -379,7 +379,7 @@ with fairouz_tab:
                 st.write(f"{track['album_name']}")
                 st.image(track["image"], caption="Album Art")
             with st.expander("Graph"):
-                if st.button("Show Subgraph", key=key + 104):
+                if st.button("Show Subgraph", key=+np.random.randint(1000) + key + 104):
                     d3_temp = create_d3_graph(full_graph, key_to_track_id[str(key)])
                     d3_temp.show(
                         figsize=(600, 500), show_slider=False, save_button=False
@@ -418,7 +418,7 @@ with image_tab:
                     st.write(f"Keywords: {keywords}")
                     st.write(f"Summary: {summary}")
 
-                    if st.button("View Lyrics", key=i + 69):
+                    if st.button("View Lyrics", key=i + 69 + np.random.randint(1000)):
                         st.write(lyrics)
                 else:
                     st.write("No Lyrics Available")
@@ -426,7 +426,7 @@ with image_tab:
                 st.write(f"{track['album_name']}")
                 st.image(track["image"], caption="Album Art")
             with st.expander("Graph"):
-                if st.button("Show Subgraph", key=key + 130):
+                if st.button("Show Subgraph", key=key + 130 + np.random.randint(1000)):
                     create_d3_graph(full_graph, key_to_track_id[str(key)]).show(
                         figsize=(600, 500), show_slider=False, save_button=False
                     )
@@ -464,7 +464,7 @@ with audio_tab:
                     st.write(f"Keywords: {keywords}")
                     st.write(f"Summary: {summary}")
 
-                    if st.button("View Lyrics", key=i + 26):
+                    if st.button("View Lyrics", key=i + 26 + np.random.randint(1000)):
                         st.write(lyrics)
                 else:
                     st.write("No Lyrics Available")
@@ -472,7 +472,7 @@ with audio_tab:
                 st.write(f"{track['album_name']}")
                 st.image(track["image"], caption="Album Art")
             with st.expander("Graph"):
-                if st.button("Show Subgraph", key=key + 156):
+                if st.button("Show Subgraph", key=key + 156 + +np.random.randint(1000)):
                     create_d3_graph(full_graph, key_to_track_id[str(key)]).show(
                         figsize=(600, 500), show_slider=False, save_button=False
                     )
@@ -510,7 +510,7 @@ with text_tab:
                     st.write(f"Keywords: {keywords}")
                     st.write(f"Summary: {summary}")
 
-                    if st.button("View Lyrics", key=i):
+                    if st.button("View Lyrics", key=i + 5050 + np.random.randint(1000)):
                         st.write(lyrics)
                 else:
                     st.write("No Lyrics Available")
@@ -518,7 +518,7 @@ with text_tab:
                 st.write(f"{track['album_name']}")
                 st.image(track["image"], caption="Album Art")
             with st.expander("Graph"):
-                if st.button("Show Subgraph", key=key + 1850):
+                if st.button("Show Subgraph", key=key + 1850 + np.random.randint(1000)):
                     create_d3_graph(full_graph, key_to_track_id[str(key)]).show(
                         figsize=(600, 500), show_slider=False, save_button=False
                     )
@@ -556,7 +556,7 @@ with graph_tab:
                     st.write(f"Keywords: {keywords}")
                     st.write(f"Summary: {summary}")
 
-                    if st.button("View Lyrics", key=i + 5):
+                    if st.button("View Lyrics", key=i + 5 + np.random.randint(1000)):
                         st.write(lyrics)
                 else:
                     st.write("No Lyrics Available")
@@ -564,7 +564,7 @@ with graph_tab:
                 st.write(f"{track['album_name']}")
                 st.image(track["image"], caption="Album Art")
             with st.expander("Graph"):
-                if st.button("Show Subgraph", key=key + 2085):
+                if st.button("Show Subgraph", key=key + 2085 + np.random.randint(1000)):
                     create_d3_graph(full_graph, key_to_track_id[str(key)]).show(
                         figsize=(600, 500), show_slider=False, save_button=False
                     )
