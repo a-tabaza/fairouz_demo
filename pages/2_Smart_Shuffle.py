@@ -6,6 +6,10 @@ tracks = json.load(open("../data/tracks.json"))
 
 track_names = {track["track_title"]: id for id, track in tracks.items()}
 
+st.set_page_config(
+    page_title="Smart Shuffle",
+    page_icon="🎵",
+)
 
 from collections import namedtuple
 import json

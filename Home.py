@@ -7,15 +7,6 @@ st.set_page_config(
     page_icon="🎵",
 )
 
-from st_pages import Page, show_pages, add_page_title
-
-show_pages(
-    [
-        Page("../gui.py", "Home", "🏠"),
-        Page("1_Explorer.py", "Explorer", "🔍"),
-        Page("2_Smart_Shuffle.py", "Smart Shuffle", "🎧"),
-    ]
-)
 
 st.title("Binding Text, Images, Graphs, and Audio for Music Representation Learning")
 st.subheader("Abdulrahman Tabaza, Omar Quishawi, Abdelrahman Yaghi, Omar Qawasmeh")
