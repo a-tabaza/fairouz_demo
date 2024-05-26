@@ -1,17 +1,35 @@
 import streamlit as st
+
+from nomic_maps import md_string
+
+st.set_page_config(
+    page_title="Binding Text, Images, Graphs, and Audio for Music Representation Learning",
+    page_icon="🎵",
+)
+
+
+st.title("Binding Text, Images, Graphs, and Audio for Music Representation Learning")
+st.subheader("Abdulrahman Tabaza, Omar Quishawi, Abdelrahman Yaghi, Omar Qawasmeh")
+st.write(
+    "If you want to inspect the vector spaces that the model operates on, feel free to click the vector space button below."
+)
+
+with st.expander("Vector Spaces"):
+    st.markdown(md_string, unsafe_allow_html=True)
+
+with st.expander("Abstract"):
+    st.markdown(
+        """
+        In the field of Information Retrieval and Natural Language Processing, text embeddings play a significant role in tasks such as classification, clustering, and topic modeling. However, extending these embeddings to abstract concepts such as music, which involves multiple modalities, presents a unique challenge. Our work addresses this challenge by integrating rich multi-modal data into a unified joint embedding space. This space includes textual, visual, acoustic, and graph-based modality features. By doing so, we mirror cognitive processes associated with music interaction and overcome the disjoint nature of individual modalities. The resulting joint low-dimensional vector space facilitates retrieval, clustering, embedding space arithmetic, and cross-modal retrieval tasks. Importantly, our approach carries implications for music information retrieval and recommendation systems. Furthermore, we propose a novel multi-modal model that integrates various data types—text, images, graphs, and audio—for music representation learning. Our model aims to capture the complex relationships between different modalities, enhancing the overall understanding of music. By combining textual descriptions, visual imagery, graph-based structures, and audio signals, we create a comprehensive representation that can be leveraged for a wide range of music-related tasks. Notably, our model demonstrates promising results in music classification and recommendation systems.
+        """
+    )
+
 import networkx as nx
 from streamlit_d3graph import d3graph
 import random
 import pandas as pd
 import hashlib
 
-st.set_page_config(
-    page_title="Explorer",
-    page_icon="🎵",
-)
-
-st.title("Binding Text, Images, Graphs, and Audio for Music Representation Learning")
-st.header("Explore Music Similarity Across Multiple Modalities")
 st.subheader("Select an artist and song to get started")
 
 from collections import namedtuple
@@ -22,28 +40,28 @@ from numpy.linalg import norm
 import faiss
 
 
-key_to_track_id = json.load(open("../data/id_to_track_mapping.json"))
+key_to_track_id = json.load(open("data/id_to_track_mapping.json"))
 track_id_to_key = {v: k for k, v in key_to_track_id.items()}
 
-tracks = json.load(open("../data/tracks.json"))
+tracks = json.load(open("data/tracks.json"))
 
-# fairouz_index = Index.restore("../data/fairouz_index.usearch")
-# image_index = Index.restore("../data/image_index.usearch")
-# audio_index = Index.restore("../data/audio_index.usearch")
-# text_index = Index.restore("../data/text_index.usearch")
-# graph_index = Index.restore("../data/graph_index.usearch")
+# fairouz_index = Index.restore("data/fairouz_index.usearch")
+# image_index = Index.restore("data/image_index.usearch")
+# audio_index = Index.restore("data/audio_index.usearch")
+# text_index = Index.restore("data/text_index.usearch")
+# graph_index = Index.restore("data/graph_index.usearch")
 
-fairouz_index = faiss.read_index("../data/fairouz_index.faiss")
-image_index = faiss.read_index("../data/image_index.faiss")
-audio_index = faiss.read_index("../data/audio_index.faiss")
-text_index = faiss.read_index("../data/text_index.faiss")
-graph_index = faiss.read_index("../data/graph_index.faiss")
+fairouz_index = faiss.read_index("data/fairouz_index.faiss")
+image_index = faiss.read_index("data/image_index.faiss")
+audio_index = faiss.read_index("data/audio_index.faiss")
+text_index = faiss.read_index("data/text_index.faiss")
+graph_index = faiss.read_index("data/graph_index.faiss")
 
-fairouz_embeddings = np.load("../data/fairouz_np.npy")
-image_embeddings = np.load("../data/image_np.npy")
-audio_embeddings = np.load("../data/audio_np.npy")
-text_embeddings = np.load("../data/text_np.npy")
-graph_embeddings = np.load("../data/graph_np.npy")
+fairouz_embeddings = np.load("data/fairouz_np.npy")
+image_embeddings = np.load("data/image_np.npy")
+audio_embeddings = np.load("data/audio_np.npy")
+text_embeddings = np.load("data/text_np.npy")
+graph_embeddings = np.load("data/graph_np.npy")
 
 Explanation = namedtuple(
     "Explanation",
@@ -561,3 +579,52 @@ with graph_tab:
                 st.write(f"Audio Similarity: {sim_scores.audio_similarity}")
                 st.write(f"Text Similarity: {sim_scores.text_similarity}")
                 st.write(f"Graph Similarity: {sim_scores.graph_similarity}")
+
+track_names = {track["track_title"]: id for id, track in tracks.items()}
+
+st.title("Smart Shuffle")
+
+st.write(
+    "You: can I have spotify smart shuffle?\n\nMom: we have spotify smart shuffle at home\n\nSpotify smart shuffle at home:"
+)
+
+st.write("Select a song to start the Smart Shuffle!")
+selected_track = st.multiselect("Select songs", list(track_names.keys()))
+
+smart_shuffle_tracks = []
+if st.button("Smart Shuffle"):
+    for s_track in selected_track:
+        s_id = track_names[s_track]
+        s_key = track_id_to_key[s_id]
+        s_fairouz_embedding = fairouz_embeddings[int(s_key)]
+        sf_D, sf_I = fairouz_index.search(s_fairouz_embedding.reshape(1, -1), 3)
+        for i, (key, score) in enumerate(zip(f_I[0], f_D[0])):
+            if int(key) != int(track_id_to_key[s_id]):
+                ss_id = key_to_track_id[str(key)]
+                ss_track = tracks[ss_id]
+                smart_shuffle_tracks.append(ss_track)
+
+    st.write("### Smart Shuffle Results:")
+    for track in smart_shuffle_tracks:
+        st.write(track["track_title"], track["artist_name"], track["album_name"])
+        with st.expander(f"Lyrics"):
+            lyrics = track["lyrics"]["lyrics"]
+            if lyrics != "":
+                emotional_tone = ", ".join(track["lyrics"]["emotional"])
+                keywords = ", ".join(track["lyrics"]["context"])
+                summary = track["lyrics"]["summary"]
+                st.write(f"Emotional Tone: {emotional_tone}")
+                st.write(f"Keywords: {keywords}")
+                st.write(f"Summary: {summary}")
+                if st.button("View Lyrics", key=i + 5252 + np.random.randint(1000)):
+                    st.write(lyrics)
+            else:
+                st.write("No lyrics available for this song.")
+
+        with st.expander(f"Album Art"):
+            st.image(track["image"])
+
+        with st.expander(f"Audio"):
+            st.audio(track["preview_url"], format="audio/mp3")
+
+        st.write("----")
