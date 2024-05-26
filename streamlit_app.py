@@ -426,7 +426,9 @@ with image_tab:
                 st.write(f"{track['album_name']}")
                 st.image(track["image"], caption="Album Art")
             with st.expander("Graph"):
-                if st.button("Show Subgraph", key=key + 130 + np.random.randint(1000)):
+                if st.button(
+                    "Show Subgraph", key=key + i + 130 + np.random.randint(1000)
+                ):
                     create_d3_graph(full_graph, key_to_track_id[str(key)]).show(
                         figsize=(600, 500), show_slider=False, save_button=False
                     )
