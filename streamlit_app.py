@@ -296,7 +296,6 @@ def explainability(query_track: int, similar_track: int) -> Explanation:
     )
 
 
-set_of_randoms = [uuid1().int for _ in range(2000)]
 artists = list(set([item["artist_name"] for item in tracks.values()]))
 selected_artist = st.selectbox("Select Artist", artists)
 selected_song = st.selectbox(
@@ -370,15 +369,13 @@ with fairouz_tab:
                     if st.button(
                         "View Lyrics", key=(key + 3000 + np.random.randint(1000))
                     ):
-                        print("hello")
-                        print("lyrics", lyrics)
                         st.write(lyrics)
                 else:
                     st.write("No Lyrics Available")
             with st.expander("Album"):
                 st.write(f"{track['album_name']}")
                 st.image(track["image"], caption="Album Art")
-            print(int(str(set_of_randoms.pop())[-4:]))
+
             with st.expander("Graph"):
                 if st.button(
                     "Show Subgraph", key=(key + 4000 + np.random.randint(1000))
