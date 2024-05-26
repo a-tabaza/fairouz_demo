@@ -1,5 +1,5 @@
 import streamlit as st
-
+from uuid import uuid4
 from nomic_maps import md_string
 
 st.set_page_config(
@@ -328,7 +328,7 @@ with st.expander(f"Lyrics"):
         st.write(f"Keywords: {keywords}")
         st.write(f"Summary: {summary}")
 
-        if st.button("View Lyrics"):
+        if st.button("View Lyrics", key=str(uuid4())):
             st.write(lyrics)
     else:
         st.write("No Lyrics Available")
@@ -338,7 +338,7 @@ with st.expander("Album"):
     st.image(track["image"], caption="Album Art")
 
 with st.expander(f"Graph"):
-    if st.button("Show Sub Graph"):
+    if st.button("Show Sub Graph", str(uuid4())):
         create_d3_graph(full_graph, id).show(
             figsize=(600, 500), show_slider=False, save_button=False
         )
@@ -371,7 +371,7 @@ with fairouz_tab:
                     st.write(f"Keywords: {keywords}")
                     st.write(f"Summary: {summary}")
 
-                    if st.button("View Lyrics", key=i + 52 + np.random.randint(1000)):
+                    if st.button("View Lyrics", key=str(uuid4())):
                         st.write(lyrics)
                 else:
                     st.write("No Lyrics Available")
@@ -379,7 +379,7 @@ with fairouz_tab:
                 st.write(f"{track['album_name']}")
                 st.image(track["image"], caption="Album Art")
             with st.expander("Graph"):
-                if st.button("Show Subgraph", key=+np.random.randint(1000) + key + 104):
+                if st.button("Show Subgraph", key=str(uuid4())):
                     d3_temp = create_d3_graph(full_graph, key_to_track_id[str(key)])
                     d3_temp.show(
                         figsize=(600, 500), show_slider=False, save_button=False
@@ -418,7 +418,7 @@ with image_tab:
                     st.write(f"Keywords: {keywords}")
                     st.write(f"Summary: {summary}")
 
-                    if st.button("View Lyrics", key=i + 69 + np.random.randint(1000)):
+                    if st.button("View Lyrics", key=str(uuid4())):
                         st.write(lyrics)
                 else:
                     st.write("No Lyrics Available")
@@ -426,9 +426,7 @@ with image_tab:
                 st.write(f"{track['album_name']}")
                 st.image(track["image"], caption="Album Art")
             with st.expander("Graph"):
-                if st.button(
-                    "Show Subgraph", key=key + i + 130 + np.random.randint(1000)
-                ):
+                if st.button("Show Subgraph", key=str(uuid4())):
                     create_d3_graph(full_graph, key_to_track_id[str(key)]).show(
                         figsize=(600, 500), show_slider=False, save_button=False
                     )
@@ -466,7 +464,7 @@ with audio_tab:
                     st.write(f"Keywords: {keywords}")
                     st.write(f"Summary: {summary}")
 
-                    if st.button("View Lyrics", key=i + 26 + np.random.randint(1000)):
+                    if st.button("View Lyrics", key=str(uuid4())):
                         st.write(lyrics)
                 else:
                     st.write("No Lyrics Available")
@@ -474,7 +472,7 @@ with audio_tab:
                 st.write(f"{track['album_name']}")
                 st.image(track["image"], caption="Album Art")
             with st.expander("Graph"):
-                if st.button("Show Subgraph", key=key + 156 + +np.random.randint(1000)):
+                if st.button("Show Subgraph", key=str(uuid4())):
                     create_d3_graph(full_graph, key_to_track_id[str(key)]).show(
                         figsize=(600, 500), show_slider=False, save_button=False
                     )
@@ -512,7 +510,7 @@ with text_tab:
                     st.write(f"Keywords: {keywords}")
                     st.write(f"Summary: {summary}")
 
-                    if st.button("View Lyrics", key=i + 5050 + np.random.randint(1000)):
+                    if st.button("View Lyrics", key=str(uuid4())):
                         st.write(lyrics)
                 else:
                     st.write("No Lyrics Available")
@@ -520,7 +518,7 @@ with text_tab:
                 st.write(f"{track['album_name']}")
                 st.image(track["image"], caption="Album Art")
             with st.expander("Graph"):
-                if st.button("Show Subgraph", key=key + 1850 + np.random.randint(1000)):
+                if st.button("Show Subgraph", key=str(uuid4())):
                     create_d3_graph(full_graph, key_to_track_id[str(key)]).show(
                         figsize=(600, 500), show_slider=False, save_button=False
                     )
@@ -558,7 +556,7 @@ with graph_tab:
                     st.write(f"Keywords: {keywords}")
                     st.write(f"Summary: {summary}")
 
-                    if st.button("View Lyrics", key=i + 5 + np.random.randint(1000)):
+                    if st.button("View Lyrics", key=str(uuid4())):
                         st.write(lyrics)
                 else:
                     st.write("No Lyrics Available")
@@ -566,7 +564,7 @@ with graph_tab:
                 st.write(f"{track['album_name']}")
                 st.image(track["image"], caption="Album Art")
             with st.expander("Graph"):
-                if st.button("Show Subgraph", key=key + 2085 + np.random.randint(1000)):
+                if st.button("Show Subgraph", key=str(uuid4())):
                     create_d3_graph(full_graph, key_to_track_id[str(key)]).show(
                         figsize=(600, 500), show_slider=False, save_button=False
                     )
@@ -593,7 +591,7 @@ st.write("Select a song to start the Smart Shuffle!")
 selected_track = st.multiselect("Select songs", sorted(list(track_names.keys())))
 
 smart_shuffle_tracks = []
-if st.button("Smart Shuffle"):
+if st.button("Smart Shuffle", key=str(uuid4())):
     for s_track in selected_track:
         s_id = track_names[s_track]
         s_key = track_id_to_key[s_id]
@@ -619,7 +617,7 @@ for sss_track in smart_shuffle_tracks:
             st.write(f"Emotional Tone: {emotional_tone}")
             st.write(f"Keywords: {keywords}")
             st.write(f"Summary: {summary}")
-            if st.button("View Lyrics", key=i + 5252 + np.random.randint(1000)):
+            if st.button("View Lyrics", key=str(uuid4())):
                 st.write(lyrics)
         else:
             st.write("No lyrics available for this song.")
