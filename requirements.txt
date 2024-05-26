@@ -6,3 +6,4 @@ networkx
 streamlit-d3graph
 scipy
 scikit-learn
+st-pages
