@@ -16,7 +16,7 @@ FROM python:3.11-slim
 WORKDIR /app
 COPY --from=builder /app /app
 ADD data /app/data
-COPY gui.py .
+COPY streamlit_app.py .
 COPY nomic_maps.py .
 EXPOSE 8501
 HEALTHCHECK CMD curl --fail http://localhost:8501/_stcore/health
