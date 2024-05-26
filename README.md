@@ -6,7 +6,7 @@ For a detailed explanation of the model, please refer to the paper \[will link o
 # Functionality
 As soon as we trained our model, we embedded all the songs we had, resulting in an embedding per song, based on those embeddings, we added the following functionality:
 - **Multimodal Search:** Given a song, we decompose the individual modalities that are present in that song, and explore similarities across these modalities, as well as their combined representation, formed by our model.
-- **Recommendation:** Given a set of unique songs, we are able to generate a playlist of recommended tracks, most often, should we find that our model generates excellent recommendations based on highly biased and subjective user feedback.
+- **Recommendation:** Given a set of unique songs, we are able to generate a playlist of recommended tracks, most often, we find that our model generates excellent recommendations based on highly biased and subjective user feedback.
 - **Explainablity:** Given a song, the model retrieves the most similar songs to the input song and explains why they are similar, based on each individual modality, and vector similarity.
 - **Interactivity:** We added a component to interact with the knowledge graph, where you can explore the graph and see the songs that are connected to the selected song. We also link the `Nomic by Atlas` maps that we produced, these are by far the most interactive component of the demo, where you can explore the songs in a 2D space, and see the connections between them.
 
