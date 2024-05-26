@@ -338,7 +338,7 @@ with st.expander("Album"):
     st.image(track["image"], caption="Album Art")
 
 with st.expander(f"Graph"):
-    if st.button("Show Sub Graph", str(uuid4())):
+    if st.button("Show Sub Graph", key=str(uuid4())):
         create_d3_graph(full_graph, id).show(
             figsize=(600, 500), show_slider=False, save_button=False
         )
