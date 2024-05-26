@@ -30,6 +30,7 @@ import random
 import pandas as pd
 import hashlib
 
+st.header("Explore Music Similarity Accross Modalities")
 st.subheader("Select an artist and song to get started")
 
 from collections import namedtuple
