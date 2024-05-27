@@ -17,7 +17,7 @@ WORKDIR /app
 COPY --from=builder /app /app
 ADD data /app/data
 COPY streamlit_app.py .
-COPY nomic_maps.py .
+COPY md_strings.py .
 EXPOSE 8501
 HEALTHCHECK CMD curl --fail http://localhost:8501/_stcore/health
 ENV PATH="/app/.venv/bin:$PATH"
