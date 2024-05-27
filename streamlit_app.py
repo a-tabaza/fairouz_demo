@@ -1,42 +1,38 @@
 import streamlit as st
 from md_strings import vector_spaces, abstract, functionality
-
-st.set_page_config(
-    page_title="Binding Text, Images, Graphs, and Audio for Music Representation Learning",
-    page_icon="🎵",
-)
-
-
-st.title("Binding Text, Images, Graphs, and Audio for Music Representation Learning")
-st.subheader("Abdulrahman Tabaza, Omar Quishawi, Abdelrahman Yaghi, Omar Qawasmeh")
-st.write(
-    "To read more about the project, nicknamed _Fairouz_, please visit the [GitHub Repository](https://github.com/a-tabaza/fairouz_demo), or use the expanders below to learn more about the project."
-)
-
-with st.expander("About"):
-    st.markdown(functionality)
-with st.expander("Abstract"):
-    st.markdown(abstract)
-
-with st.expander("Vector Spaces"):
-    st.markdown(vector_spaces, unsafe_allow_html=True)
-
 import networkx as nx
 from streamlit_d3graph import d3graph
 import random
 import pandas as pd
 import hashlib
 import plotly.express as px
-
-st.header("Explore Music Similarity Accross Modalities")
-st.subheader("Select an artist and song to get started")
-
 from collections import namedtuple
 import json
 import numpy as np
 from numpy.linalg import norm
-
 import faiss
+
+st.set_page_config(
+    page_title="Binding Text, Images, Graphs, and Audio for Music Representation Learning",
+    page_icon="🎵",
+)
+
+st.title("Binding Text, Images, Graphs, and Audio for Music Representation Learning")
+st.subheader("Abdulrahman Tabaza, Omar Quishawi, Abdelrahman Yaghi, Omar Qawasmeh")
+st.write(
+    "To read more about the project, nicknamed _Fairouz_, please visit the [GitHub Repository](https://github.com/a-tabaza/fairouz_demo), or use the expanders below to learn more."
+)
+
+with st.expander("About"):
+    st.markdown(functionality)
+with st.expander("Abstract"):
+    st.markdown(abstract)
+with st.expander("Vector Spaces"):
+    st.markdown(vector_spaces, unsafe_allow_html=True)
+
+st.header("Explore Music Similarity Accross Modalities")
+st.subheader("Select an artist and song to get started")
+st.write("The following sections will show you similar songs based on different modalities. You can navigate through the tabs to see tracks similar to the selected track based on Fairouz, Image, Audio, Text, and Graph embeddings. Explainers are also provided to show the similarity scores between the selected track and the similar tracks, they're calculated based on cosine similarity.")
 
 key_to_track_id = json.load(open("data/id_to_track_mapping.json"))
 track_id_to_key = {v: k for k, v in key_to_track_id.items()}
@@ -575,54 +571,68 @@ st.write("Select a song to start the Smart Shuffle!")
 selected_track = st.multiselect("Select songs", sorted(list(track_names.keys())))
 
 smart_shuffle_tracks = []
+top_k = st.slider("Select the number of songs you want from us, for each one of yours!", 2, 6, 3)
 if st.button("Smart Shuffle"):
+    picked_songs = []
+    s_keys = []
     for s_track in selected_track:
         s_id = track_names[s_track]
         s_key = track_id_to_key[s_id]
+        s_keys.append(s_key)
         s_fairouz_embedding = fairouz_embeddings[int(s_key)]
-        sf_D, sf_I = fairouz_index.search(s_fairouz_embedding.reshape(1, -1), 3)
-        for i, (key, score) in enumerate(zip(sf_I[0], sf_D[0])):
-            if int(key) != int(s_key):
-                ss_id = key_to_track_id[str(key)]
-                ss_track = tracks[ss_id]
-                smart_shuffle_tracks.append({
-                    "track": ss_track,
-                    "s_id": s_id,
-                    "similar_key": key
-                })
+        sf_D, sf_I = fairouz_index.search(s_fairouz_embedding.reshape(1, -1), top_k)
+        picked_songs.extend(sf_I[0].tolist())
+    picked_songs = list(set(picked_songs))
+    s_keys = [int(s_key) for s_key in s_keys]
+    for i, key in enumerate(picked_songs):
+        if not (int(key) in s_keys):
+            ss_id = key_to_track_id[str(key)]
+            ss_track = tracks[ss_id]
+            smart_shuffle_tracks.append({
+                "track": ss_track,
+                "s_id": s_id,
+                "similar_key": key
+            })
+    st.write(f"Found {len(smart_shuffle_tracks)} songs for you!")
 
 st.write("### Smart Shuffle Results:")
+smart_shuffle_tracks = sorted(smart_shuffle_tracks, key=lambda x: x["track"]["track_title"])
+
 for i, sss_track in enumerate(smart_shuffle_tracks):
-    st.write(
-        f"{sss_track['track']['track_title']} - {sss_track['track']['artist_name']} - {sss_track['track']['album_name']}"
+    st.subheader(
+        f"{sss_track['track']['track_title']}"
     )
-    with st.expander(f"Lyrics"):
-        lyrics = sss_track["track"]["lyrics"]["lyrics"]
-        if lyrics != "":
-            emotional_tone = ", ".join(sss_track["track"]["lyrics"]["emotional"])
-            keywords = ", ".join(sss_track["track"]["lyrics"]["context"])
-            summary = sss_track["track"]["lyrics"]["summary"]
-            st.write(f"Emotional Tone: {emotional_tone}")
-            st.write(f"Keywords: {keywords}")
-            st.write(f"Summary: {summary}")
-            st.write(lyrics)
-        else:
-            st.write("No lyrics available for this song.")
+    st.write(f"**Artist:** {sss_track['track']['artist_name']} | **Album:** {sss_track['track']['album_name']}")
 
-    with st.expander(f"Album Art"):
-        st.image(sss_track["track"]["image"])
+    expanders, artwork = st.columns(2)
 
-    with st.expander(f"Audio"):
-        st.audio(sss_track["track"]["preview_url"], format="audio/mp3")
+    with expanders:
+        with st.expander(f"Lyrics"):
+            lyrics = sss_track["track"]["lyrics"]["lyrics"]
+            if lyrics != "":
+                emotional_tone = ", ".join(sss_track["track"]["lyrics"]["emotional"])
+                keywords = ", ".join(sss_track["track"]["lyrics"]["context"])
+                summary = sss_track["track"]["lyrics"]["summary"]
+                st.write(f"Emotional Tone: {emotional_tone}")
+                st.write(f"Keywords: {keywords}")
+                st.write(f"Summary: {summary}")
+                st.write(lyrics)
+            else:
+                st.write("No lyrics available for this song.")
+
+        with st.expander(f"Audio"):
+            st.audio(sss_track["track"]["preview_url"], format="audio/mp3")
+
+    with artwork:
+        st.image(sss_track["track"]["image"], caption="Album Art")
 
     with st.expander(f"Explainability"):
         query_title = tracks[str(sss_track["s_id"])]["track_title"]
         sim_scores = explainability(int(track_id_to_key[sss_track["s_id"]]), sss_track["similar_key"])
         df = pd.DataFrame(dict(
-            r=[sim_scores.fairouz_similarity, sim_scores.image_similarity, sim_scores.audio_similarity, sim_scores.text_similarity, sim_scores.graph_similarity],
-            theta=['Fairouz Similarity','Image Similarity', 'Audio Similarity', 'Text Similarity', 'Graph Similarity']))
+            r=[sim_scores.image_similarity, sim_scores.audio_similarity, sim_scores.text_similarity, sim_scores.graph_similarity],
+            theta=['Image Similarity', 'Audio Similarity', 'Text Similarity', 'Graph Similarity']))
         fig = px.line_polar(df, r='r', theta='theta', line_close=True, range_r=[0, 1], title=f"Similarity Scores for {sss_track['track']['track_title']} and {query_title}", template="plotly_dark")
         fig.update_traces(fill='toself')
         st.plotly_chart(fig, use_container_width=True)
-
     st.write("----")
