@@ -6,11 +6,13 @@ For a detailed explanation of the model, please refer to the paper \[will link o
 # Functionality
 As soon as we trained our model, we embedded all the songs we had, resulting in an embedding per song, based on those embeddings, we added the following functionality:
 - **Multimodal Search:** Given a song, we decompose the individual modalities that are present in that song, and explore similarities across these modalities, as well as their combined representation, formed by our model.
-- **Recommendation:** Given a set of unique songs, we are able to generate a playlist of recommended tracks, most often, we find that our model generates excellent recommendations based on highly biased and subjective user feedback.
-- **Explainablity:** Given a song, the model retrieves the most similar songs to the input song and explains why they are similar, based on each individual modality, and vector similarity.
-- **Interactivity:** We added a component to interact with the knowledge graph, where you can explore the graph and see the songs that are connected to the selected song. We also link the `Nomic by Atlas` maps that we produced, these are by far the most interactive component of the demo, where you can explore the songs in a 2D space, and see the connections between them.
+- **Recommendation (Smart Shuffle):** Given a set of unique songs, we are able to generate a playlist of recommended tracks, most often, we find that our model generates excellent recommendations based on highly biased and subjective user feedback.
+- **Explainablity:** Given a song, the model retrieves the most similar songs to the input song and explains why they are similar, based on each individual modality, and vector similarity, we use radar plots to represent similarity across 4-5 axes.
+- **Interactivity:** We added a component to interact with the knowledge graph, where you can explore the graph and see the songs that are connected to the selected song. 
 
-We use exhaustive flat L2 indexes from the `faiss` library to interface with any embeddings we use. 
+We also link the `Nomic by Atlas` maps that we produced, these are by far the most interactive component of the demo, where you can explore the songs in a 2D space, and see the connections between them.
+
+We use exhaustive flat L2 indexes from the `faiss` library to interface with any embeddings we use, the exaustivity of the index is justified by the amount of data we have, but we plan on investigating approximate neighbor search in the future, once we train a full model with much more data. 
 
 All our data is attached to this demo in the `data` directory, inlcuding the embeddings.
 
