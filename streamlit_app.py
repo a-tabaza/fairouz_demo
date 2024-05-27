@@ -10,7 +10,7 @@ st.set_page_config(
 st.title("Binding Text, Images, Graphs, and Audio for Music Representation Learning")
 st.subheader("Abdulrahman Tabaza, Omar Quishawi, Abdelrahman Yaghi, Omar Qawasmeh")
 st.write(
-    "To read more about the aplication, please visit the [GitHub Repository](https://github.com/a-tabaza/fairouz_demo), or use the expanders below to learn more about the project."
+    "To read more about the project, nicknamed _Fairouz_, please visit the [GitHub Repository](https://github.com/a-tabaza/fairouz_demo), or use the expanders below to learn more about the project."
 )
 
 with st.expander("About"):
