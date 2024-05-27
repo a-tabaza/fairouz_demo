@@ -6,3 +6,4 @@ networkx
 streamlit-d3graph
 scipy
 scikit-learn
+plotly==5.22.0

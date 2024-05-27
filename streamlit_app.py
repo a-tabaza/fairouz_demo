@@ -1,5 +1,5 @@
 import streamlit as st
-from nomic_maps import md_string
+from md_strings import vector_spaces, abstract, functionality
 
 st.set_page_config(
     page_title="Binding Text, Images, Graphs, and Audio for Music Representation Learning",
@@ -10,24 +10,23 @@ st.set_page_config(
 st.title("Binding Text, Images, Graphs, and Audio for Music Representation Learning")
 st.subheader("Abdulrahman Tabaza, Omar Quishawi, Abdelrahman Yaghi, Omar Qawasmeh")
 st.write(
-    "If you want to inspect the vector spaces that the model operates on, feel free to click the vector space button below."
+    "To read more about the aplication, please visit the [GitHub Repository](https://github.com/a-tabaza/fairouz_demo), or use the expanders below to learn more about the project."
 )
 
-with st.expander("Vector Spaces"):
-    st.markdown(md_string, unsafe_allow_html=True)
-
+with st.expander("About"):
+    st.markdown(functionality)
 with st.expander("Abstract"):
-    st.markdown(
-        """
-        In the field of Information Retrieval and Natural Language Processing, text embeddings play a significant role in tasks such as classification, clustering, and topic modeling. However, extending these embeddings to abstract concepts such as music, which involves multiple modalities, presents a unique challenge. Our work addresses this challenge by integrating rich multi-modal data into a unified joint embedding space. This space includes textual, visual, acoustic, and graph-based modality features. By doing so, we mirror cognitive processes associated with music interaction and overcome the disjoint nature of individual modalities. The resulting joint low-dimensional vector space facilitates retrieval, clustering, embedding space arithmetic, and cross-modal retrieval tasks. Importantly, our approach carries implications for music information retrieval and recommendation systems. Furthermore, we propose a novel multi-modal model that integrates various data types—text, images, graphs, and audio—for music representation learning. Our model aims to capture the complex relationships between different modalities, enhancing the overall understanding of music. By combining textual descriptions, visual imagery, graph-based structures, and audio signals, we create a comprehensive representation that can be leveraged for a wide range of music-related tasks. Notably, our model demonstrates promising results in music classification and recommendation systems.
-        """
-    )
+    st.markdown(abstract)
+
+with st.expander("Vector Spaces"):
+    st.markdown(vector_spaces, unsafe_allow_html=True)
 
 import networkx as nx
 from streamlit_d3graph import d3graph
 import random
 import pandas as pd
 import hashlib
+import plotly.express as px
 
 st.header("Explore Music Similarity Accross Modalities")
 st.subheader("Select an artist and song to get started")
@@ -43,12 +42,6 @@ key_to_track_id = json.load(open("data/id_to_track_mapping.json"))
 track_id_to_key = {v: k for k, v in key_to_track_id.items()}
 
 tracks = json.load(open("data/tracks.json"))
-
-# fairouz_index = Index.restore("data/fairouz_index.usearch")
-# image_index = Index.restore("data/image_index.usearch")
-# audio_index = Index.restore("data/audio_index.usearch")
-# text_index = Index.restore("data/text_index.usearch")
-# graph_index = Index.restore("data/graph_index.usearch")
 
 fairouz_index = faiss.read_index("data/fairouz_index.faiss")
 image_index = faiss.read_index("data/image_index.faiss")
@@ -383,15 +376,14 @@ with fairouz_tab:
             with st.expander("Audio"):
                 st.audio(track["preview_url"])
             with st.expander("Explainability"):
+                query_title = tracks[id]["track_title"]
                 sim_scores = explainability(query_key, key)
-                st.write(
-                    f"Cosine Similarity between {track['track_title']} and {selected_song}:"
-                )
-                st.write(f"Fairouz Similarity: {sim_scores.fairouz_similarity}")
-                st.write(f"Image Similarity: {sim_scores.image_similarity}")
-                st.write(f"Audio Similarity: {sim_scores.audio_similarity}")
-                st.write(f"Text Similarity: {sim_scores.text_similarity}")
-                st.write(f"Graph Similarity: {sim_scores.graph_similarity}")
+                df = pd.DataFrame(dict(
+                    r=[sim_scores.fairouz_similarity, sim_scores.image_similarity, sim_scores.audio_similarity, sim_scores.text_similarity, sim_scores.graph_similarity],
+                    theta=['Fairouz Similarity','Image Similarity', 'Audio Similarity', 'Text Similarity', 'Graph Similarity']))
+                fig = px.line_polar(df, r='r', theta='theta', line_close=True, range_r=[0, 1], title=f"Similarity Scores for {track['track_title']} and {query_title}", template="plotly_dark")
+                fig.update_traces(fill='toself')
+                st.plotly_chart(fig, use_container_width=True)
 
 with image_tab:
     key = track_id_to_key[id]
@@ -429,15 +421,14 @@ with image_tab:
             with st.expander("Audio"):
                 st.audio(track["preview_url"])
             with st.expander("Explainability"):
+                query_title = tracks[id]["track_title"]
                 sim_scores = explainability(query_key, key)
-                st.write(
-                    f"Cosine Similarity between {track['track_title']} and {selected_song}:"
-                )
-                st.write(f"Fairouz Similarity: {sim_scores.fairouz_similarity}")
-                st.write(f"Image Similarity: {sim_scores.image_similarity}")
-                st.write(f"Audio Similarity: {sim_scores.audio_similarity}")
-                st.write(f"Text Similarity: {sim_scores.text_similarity}")
-                st.write(f"Graph Similarity: {sim_scores.graph_similarity}")
+                df = pd.DataFrame(dict(
+                    r=[sim_scores.fairouz_similarity, sim_scores.image_similarity, sim_scores.audio_similarity, sim_scores.text_similarity, sim_scores.graph_similarity],
+                    theta=['Fairouz Similarity','Image Similarity', 'Audio Similarity', 'Text Similarity', 'Graph Similarity']))
+                fig = px.line_polar(df, r='r', theta='theta', line_close=True, range_r=[0, 1], title=f"Similarity Scores for {track['track_title']} and {query_title}", template="plotly_dark")
+                fig.update_traces(fill='toself')
+                st.plotly_chart(fig, use_container_width=True)
 
 with audio_tab:
     key = track_id_to_key[id]
@@ -475,15 +466,14 @@ with audio_tab:
             with st.expander("Audio"):
                 st.audio(track["preview_url"])
             with st.expander("Explainability"):
+                query_title = tracks[id]["track_title"]
                 sim_scores = explainability(query_key, key)
-                st.write(
-                    f"Cosine Similarity between {track['track_title']} and {selected_song}:"
-                )
-                st.write(f"Fairouz Similarity: {sim_scores.fairouz_similarity}")
-                st.write(f"Image Similarity: {sim_scores.image_similarity}")
-                st.write(f"Audio Similarity: {sim_scores.audio_similarity}")
-                st.write(f"Text Similarity: {sim_scores.text_similarity}")
-                st.write(f"Graph Similarity: {sim_scores.graph_similarity}")
+                df = pd.DataFrame(dict(
+                    r=[sim_scores.fairouz_similarity, sim_scores.image_similarity, sim_scores.audio_similarity, sim_scores.text_similarity, sim_scores.graph_similarity],
+                    theta=['Fairouz Similarity','Image Similarity', 'Audio Similarity', 'Text Similarity', 'Graph Similarity']))
+                fig = px.line_polar(df, r='r', theta='theta', line_close=True, range_r=[0, 1], title=f"Similarity Scores for {track['track_title']} and {query_title}", template="plotly_dark")
+                fig.update_traces(fill='toself')
+                st.plotly_chart(fig, use_container_width=True)
 
 with text_tab:
     key = track_id_to_key[id]
@@ -521,15 +511,14 @@ with text_tab:
             with st.expander("Audio"):
                 st.audio(track["preview_url"])
             with st.expander("Explainability"):
+                query_title = tracks[id]["track_title"]
                 sim_scores = explainability(query_key, key)
-                st.write(
-                    f"Cosine Similarity between {track['track_title']} and {selected_song}:"
-                )
-                st.write(f"Fairouz Similarity: {sim_scores.fairouz_similarity}")
-                st.write(f"Image Similarity: {sim_scores.image_similarity}")
-                st.write(f"Audio Similarity: {sim_scores.audio_similarity}")
-                st.write(f"Text Similarity: {sim_scores.text_similarity}")
-                st.write(f"Graph Similarity: {sim_scores.graph_similarity}")
+                df = pd.DataFrame(dict(
+                    r=[sim_scores.fairouz_similarity, sim_scores.image_similarity, sim_scores.audio_similarity, sim_scores.text_similarity, sim_scores.graph_similarity],
+                    theta=['Fairouz Similarity','Image Similarity', 'Audio Similarity', 'Text Similarity', 'Graph Similarity']))
+                fig = px.line_polar(df, r='r', theta='theta', line_close=True, range_r=[0, 1], title=f"Similarity Scores for {track['track_title']} and {query_title}", template="plotly_dark")
+                fig.update_traces(fill='toself')
+                st.plotly_chart(fig, use_container_width=True)
 
 with graph_tab:
     key = track_id_to_key[id]
@@ -567,15 +556,14 @@ with graph_tab:
             with st.expander("Audio"):
                 st.audio(track["preview_url"])
             with st.expander("Explainability"):
+                query_title = tracks[id]["track_title"]
                 sim_scores = explainability(query_key, key)
-                st.write(
-                    f"Cosine Similarity between {track['track_title']} and {selected_song}:"
-                )
-                st.write(f"Fairouz Similarity: {sim_scores.fairouz_similarity}")
-                st.write(f"Image Similarity: {sim_scores.image_similarity}")
-                st.write(f"Audio Similarity: {sim_scores.audio_similarity}")
-                st.write(f"Text Similarity: {sim_scores.text_similarity}")
-                st.write(f"Graph Similarity: {sim_scores.graph_similarity}")
+                df = pd.DataFrame(dict(
+                    r=[sim_scores.fairouz_similarity, sim_scores.image_similarity, sim_scores.audio_similarity, sim_scores.text_similarity, sim_scores.graph_similarity],
+                    theta=['Fairouz Similarity','Image Similarity', 'Audio Similarity', 'Text Similarity', 'Graph Similarity']))
+                fig = px.line_polar(df, r='r', theta='theta', line_close=True, range_r=[0, 1], title=f"Similarity Scores for {track['track_title']} and {query_title}", template="plotly_dark")
+                fig.update_traces(fill='toself')
+                st.plotly_chart(fig, use_container_width=True)
 
 track_names = {track["track_title"]: id for id, track in tracks.items()}
 
@@ -594,34 +582,47 @@ if st.button("Smart Shuffle"):
         s_fairouz_embedding = fairouz_embeddings[int(s_key)]
         sf_D, sf_I = fairouz_index.search(s_fairouz_embedding.reshape(1, -1), 3)
         for i, (key, score) in enumerate(zip(sf_I[0], sf_D[0])):
-            if int(key) != int(track_id_to_key[s_id]):
+            if int(key) != int(s_key):
                 ss_id = key_to_track_id[str(key)]
                 ss_track = tracks[ss_id]
-                smart_shuffle_tracks.append(ss_track)
+                smart_shuffle_tracks.append({
+                    "track": ss_track,
+                    "s_id": s_id,
+                    "similar_key": key
+                })
 
 st.write("### Smart Shuffle Results:")
 for i, sss_track in enumerate(smart_shuffle_tracks):
     st.write(
-        f"{sss_track['track_title']} - {sss_track['artist_name']} - {sss_track['album_name']}"
+        f"{sss_track['track']['track_title']} - {sss_track['track']['artist_name']} - {sss_track['track']['album_name']}"
     )
     with st.expander(f"Lyrics"):
-        lyrics = sss_track["lyrics"]["lyrics"]
+        lyrics = sss_track["track"]["lyrics"]["lyrics"]
         if lyrics != "":
-            emotional_tone = ", ".join(sss_track["lyrics"]["emotional"])
-            keywords = ", ".join(sss_track["lyrics"]["context"])
-            summary = sss_track["lyrics"]["summary"]
+            emotional_tone = ", ".join(sss_track["track"]["lyrics"]["emotional"])
+            keywords = ", ".join(sss_track["track"]["lyrics"]["context"])
+            summary = sss_track["track"]["lyrics"]["summary"]
             st.write(f"Emotional Tone: {emotional_tone}")
             st.write(f"Keywords: {keywords}")
             st.write(f"Summary: {summary}")
-            if st.button("View Lyrics", key=(i + 110)):
-                st.write(lyrics)
+            st.write(lyrics)
         else:
             st.write("No lyrics available for this song.")
 
     with st.expander(f"Album Art"):
-        st.image(sss_track["image"])
+        st.image(sss_track["track"]["image"])
 
     with st.expander(f"Audio"):
-        st.audio(sss_track["preview_url"], format="audio/mp3")
+        st.audio(sss_track["track"]["preview_url"], format="audio/mp3")
+
+    with st.expander(f"Explainability"):
+        query_title = tracks[str(sss_track["s_id"])]["track_title"]
+        sim_scores = explainability(int(track_id_to_key[sss_track["s_id"]]), sss_track["similar_key"])
+        df = pd.DataFrame(dict(
+            r=[sim_scores.fairouz_similarity, sim_scores.image_similarity, sim_scores.audio_similarity, sim_scores.text_similarity, sim_scores.graph_similarity],
+            theta=['Fairouz Similarity','Image Similarity', 'Audio Similarity', 'Text Similarity', 'Graph Similarity']))
+        fig = px.line_polar(df, r='r', theta='theta', line_close=True, range_r=[0, 1], title=f"Similarity Scores for {sss_track['track']['track_title']} and {query_title}", template="plotly_dark")
+        fig.update_traces(fill='toself')
+        st.plotly_chart(fig, use_container_width=True)
 
     st.write("----")
