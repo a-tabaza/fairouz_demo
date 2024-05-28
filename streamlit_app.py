@@ -574,31 +574,49 @@ smart_shuffle_tracks = []
 top_k = st.slider("Select the number of songs you want from us, for each one of yours!", 2, 6, 3)
 if st.button("Smart Shuffle"):
     picked_songs = []
-    s_keys = []
+
     for s_track in selected_track:
         s_id = track_names[s_track]
         s_key = track_id_to_key[s_id]
-        s_keys.append(s_key)
         s_fairouz_embedding = fairouz_embeddings[int(s_key)]
         sf_D, sf_I = fairouz_index.search(s_fairouz_embedding.reshape(1, -1), top_k)
-        picked_songs.extend(sf_I[0].tolist())
-    picked_songs = list(set(picked_songs))
-    s_keys = [int(s_key) for s_key in s_keys]
-    for i, key in enumerate(picked_songs):
-        if not (int(key) in s_keys):
-            ss_id = key_to_track_id[str(key)]
-            ss_track = tracks[ss_id]
-            smart_shuffle_tracks.append({
-                "track": ss_track,
-                "s_id": s_id,
-                "similar_key": key
-            })
-    st.write(f"Found {len(smart_shuffle_tracks)} songs for you!")
+        picked_songs.append({
+            "parent": s_key,
+            "similar": sf_I[0]
+        })
 
-st.write("### Smart Shuffle Results:")
-smart_shuffle_tracks = sorted(smart_shuffle_tracks, key=lambda x: x["track"]["track_title"])
+    added = []
+
+    for i, song in enumerate(picked_songs):
+        parent_key = song["parent"]
+        for j, key in enumerate(song["similar"]):
+            if (int(key) != int(parent_key)) and (key not in added):
+                ss_id = key_to_track_id[str(key)]
+                ss_track = tracks[ss_id]
+                smart_shuffle_tracks.append({
+                    "parent": parent_key,
+                    "track": ss_track,
+                    "similar_key": key
+                })
+                added.append(key)
+    st.write(f"Found {len(smart_shuffle_tracks)} songs for you!")
+    
+    smart_shuffle_tracks = sorted(smart_shuffle_tracks, key=lambda x: x["track"]["track_title"])
+
+    st.write("### Your Songs:")
+
+    num_tracks = len(selected_track)
+
+    artwork_columns = st.columns(num_tracks)
+
+    for i, s_track in enumerate(selected_track):
+        with artwork_columns[i]:
+            st.image(tracks[track_names[s_track]]["image"], caption=s_track)
+
+    st.write("### Smart Shuffle Results:")
 
 for i, sss_track in enumerate(smart_shuffle_tracks):
+    parent_track = tracks[str(key_to_track_id[sss_track["parent"]])]
     st.subheader(
         f"{sss_track['track']['track_title']}"
     )
@@ -607,7 +625,7 @@ for i, sss_track in enumerate(smart_shuffle_tracks):
     expanders, artwork = st.columns(2)
 
     with expanders:
-        with st.expander(f"Lyrics"):
+        with st.expander(f"Lyrics for {sss_track['track']['track_title']}"):
             lyrics = sss_track["track"]["lyrics"]["lyrics"]
             if lyrics != "":
                 emotional_tone = ", ".join(sss_track["track"]["lyrics"]["emotional"])
@@ -620,15 +638,31 @@ for i, sss_track in enumerate(smart_shuffle_tracks):
             else:
                 st.write("No lyrics available for this song.")
 
-        with st.expander(f"Audio"):
+        with st.expander(f"Lyrics for {parent_track['track_title']}"):
+            lyrics = parent_track["lyrics"]["lyrics"]
+            if lyrics != "":
+                emotional_tone = ", ".join(parent_track["lyrics"]["emotional"])
+                keywords = ", ".join(parent_track["lyrics"]["context"])
+                summary = parent_track["lyrics"]["summary"]
+                st.write(f"Emotional Tone: {emotional_tone}")
+                st.write(f"Keywords: {keywords}")
+                st.write(f"Summary: {summary}")
+                st.write(lyrics)
+            else:
+                st.write("No lyrics available for this song.")
+
+
+        with st.expander(f"Audio for {sss_track['track']['track_title']}"):
             st.audio(sss_track["track"]["preview_url"], format="audio/mp3")
+        with st.expander(f"Audio for {parent_track['track_title']}"):
+            st.audio(parent_track["preview_url"], format="audio/mp3")
 
     with artwork:
         st.image(sss_track["track"]["image"], caption="Album Art")
 
     with st.expander(f"Explainability"):
-        query_title = tracks[str(sss_track["s_id"])]["track_title"]
-        sim_scores = explainability(int(track_id_to_key[sss_track["s_id"]]), sss_track["similar_key"])
+        query_title = tracks[str(key_to_track_id[sss_track["parent"]])]["track_title"]
+        sim_scores = explainability(sss_track["parent"], sss_track["similar_key"])
         df = pd.DataFrame(dict(
             r=[sim_scores.image_similarity, sim_scores.audio_similarity, sim_scores.text_similarity, sim_scores.graph_similarity],
             theta=['Image Similarity', 'Audio Similarity', 'Text Similarity', 'Graph Similarity']))
